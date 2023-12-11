@@ -46,11 +46,11 @@ services:
         value: "false" # or use environment variable substitution if needed
     # Add other environment variables as needed
 
-  # Relational Database (Postgres)
-  - type: postgres
-    name: relational-db
-    version: 15.2
-    # Use Render's managed Postgres service
+  # # Relational Database (Postgres)
+  # - type: postgres
+  #   name: relational-db
+  #   version: 15.2
+  #   # Use Render's managed Postgres service
 
   # Vespa Service
   - type: web
