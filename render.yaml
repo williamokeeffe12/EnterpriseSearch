@@ -7,12 +7,11 @@ services:
     buildCommand: "/bin/sh -c 'alembic upgrade head && echo \"Starting Danswer Api Server\"'"
     envVars:
       - key: AUTH_TYPE
-        fromEnvVar: AUTH_TYPE
+        value: "google_oauth" # Default value, can be overridden in Render's environment settings
       - key: POSTGRES_HOST
-        fromEnvVar: POSTGRES_HOST
+        value: "relational-db" # Assuming this is the correct host within Render's environment
       - key: VESPA_HOST
-        fromEnvVar: VESPA_HOST
-    # Additional environment variables as needed
+        value: "index-service" # Assuming this is the correct service name within Render's environment
 
   # Background Service
   - type: worker
@@ -21,12 +20,11 @@ services:
     dockerfilePath: ../../backend/Dockerfile
     envVars:
       - key: AUTH_TYPE
-        fromEnvVar: AUTH_TYPE
+        value: "google_oauth"
       - key: POSTGRES_HOST
-        fromEnvVar: POSTGRES_HOST
+        value: "relational-db"
       - key: VESPA_HOST
-        fromEnvVar: VESPA_HOST
-    # Additional environment variables as needed
+        value: "index-service"
 
   # Web Server
   - type: web
@@ -37,33 +35,29 @@ services:
       - key: INTERNAL_URL
         value: "http://api-server:8080"
       - key: NEXT_PUBLIC_DISABLE_STREAMING
-        fromEnvVar: NEXT_PUBLIC_DISABLE_STREAMING
-    # Additional environment variables as needed
+        value: "false" # Default value, can be overridden in Render's environment settings
 
   # # Relational Database (Postgres)
   # - type: postgres
   #   name: relational-db
   #   version: 15.2
-  #   # Use Render's managed Postgres service
 
   # Vespa Service
   - type: web
     name: vespa
     env: docker
     dockerfilePath: ../../vespa/Dockerfile
-    # Specify any needed environment variables
 
   # Nginx
   - type: web
     name: nginx
     env: docker
     dockerfilePath: ../data/nginx/Dockerfile
-    # Specify any needed environment variables
 
   # Certbot
   - type: cron
     name: certbot
-    schedule: "@daily" # Adjust as needed
+    schedule: "@daily"
     env: docker
     dockerfilePath: ../data/certbot/Dockerfile
 
@@ -74,11 +68,10 @@ services:
     dockerfilePath: ../../backend/Dockerfile.model_server
     envVars:
       - key: DOCUMENT_ENCODER_MODEL
-        fromEnvVar: DOCUMENT_ENCODER_MODEL
+        value: "${DOCUMENT_ENCODER_MODEL:-default_value}" # Replace 'default_value' as needed
       - key: NORMALIZE_EMBEDDINGS
-        fromEnvVar: NORMALIZE_EMBEDDINGS
+        value: "${NORMALIZE_EMBEDDINGS:-default_value}"
       - key: MIN_THREADS_ML_MODELS
-        fromEnvVar: MIN_THREADS_ML_MODELS
+        value: "${MIN_THREADS_ML_MODELS:-default_value}"
       - key: LOG_LEVEL
-        fromEnvVar: LOG_LEVEL
-    # Additional environment variables as needed
+        value: "${LOG_LEVEL:-info}"
