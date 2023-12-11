@@ -5,34 +5,28 @@ services:
     env: docker
     dockerfilePath: ../../backend/Dockerfile
     buildCommand: "/bin/sh -c 'alembic upgrade head && echo \"Starting Danswer Api Server\"'"
-    startCommand: "uvicorn danswer.main:app --host 0.0.0.0 --port 8080"
     envVars:
       - key: AUTH_TYPE
-        fromDatabase:
-          name: relational-db
-          property: connectionString
+        fromEnvVar: AUTH_TYPE
       - key: POSTGRES_HOST
-        value: relational_db
+        fromEnvVar: POSTGRES_HOST
       - key: VESPA_HOST
-        value: index
-    # Add other environment variables as needed
+        fromEnvVar: VESPA_HOST
+    # Additional environment variables as needed
 
   # Background Service
   - type: worker
     name: background-service
     env: docker
     dockerfilePath: ../../backend/Dockerfile
-    startCommand: "/usr/bin/supervisord"
     envVars:
       - key: AUTH_TYPE
-        fromDatabase:
-          name: relational-db
-          property: connectionString
+        fromEnvVar: AUTH_TYPE
       - key: POSTGRES_HOST
-        value: relational_db
+        fromEnvVar: POSTGRES_HOST
       - key: VESPA_HOST
-        value: index
-    # Add other environment variables as needed
+        fromEnvVar: VESPA_HOST
+    # Additional environment variables as needed
 
   # Web Server
   - type: web
@@ -41,10 +35,10 @@ services:
     dockerfilePath: ../../web/Dockerfile
     envVars:
       - key: INTERNAL_URL
-        value: "http://api_server:8080"
+        value: "http://api-server:8080"
       - key: NEXT_PUBLIC_DISABLE_STREAMING
-        value: "false" # or use environment variable substitution if needed
-    # Add other environment variables as needed
+        fromEnvVar: NEXT_PUBLIC_DISABLE_STREAMING
+    # Additional environment variables as needed
 
   # # Relational Database (Postgres)
   # - type: postgres
@@ -57,20 +51,19 @@ services:
     name: vespa
     env: docker
     dockerfilePath: ../../vespa/Dockerfile
-    # Specify start command and any env vars if needed
+    # Specify any needed environment variables
 
   # Nginx
   - type: web
     name: nginx
     env: docker
     dockerfilePath: ../data/nginx/Dockerfile
-    # Specify start command and any env vars if needed
+    # Specify any needed environment variables
 
   # Certbot
   - type: cron
     name: certbot
     schedule: "@daily" # Adjust as needed
-    startCommand: "/bin/sh -c 'certbot renew'"
     env: docker
     dockerfilePath: ../data/certbot/Dockerfile
 
@@ -79,17 +72,13 @@ services:
     name: model-server
     env: docker
     dockerfilePath: ../../backend/Dockerfile.model_server
-    startCommand: "uvicorn model_server.main:app --host 0.0.0.0 --port 9000"
     envVars:
       - key: DOCUMENT_ENCODER_MODEL
-        value: "${DOCUMENT_ENCODER_MODEL:-}"
+        fromEnvVar: DOCUMENT_ENCODER_MODEL
       - key: NORMALIZE_EMBEDDINGS
-        value: "${NORMALIZE_EMBEDDINGS:-}"
+        fromEnvVar: NORMALIZE_EMBEDDINGS
       - key: MIN_THREADS_ML_MODELS
-        value: "${MIN_THREADS_ML_MODELS:-}"
+        fromEnvVar: MIN_THREADS_ML_MODELS
       - key: LOG_LEVEL
-        value: "${LOG_LEVEL:-info}"
-    # Add other environment variables as needed
-
-# Note: Render does not support Docker volumes in the same way as Docker Compose.
-# You need to adapt your application to use Render's persistent disk storage.
+        fromEnvVar: LOG_LEVEL
+    # Additional environment variables as needed
