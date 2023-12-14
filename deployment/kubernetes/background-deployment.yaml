@@ -30,7 +30,7 @@ spec:
       volumes:
       - name: dynamic-storage
         persistentVolumeClaim:
-          claimName: dynamic-pvc
+          claimName: background-dynamic-pvc
       - name: file-connector-storage
         persistentVolumeClaim:
-          claimName: file-connector-pvc
+          claimName: background-file-connector-pvc
